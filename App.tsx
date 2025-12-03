@@ -63,11 +63,21 @@ const App: React.FC = () => {
   };
 
   // Sound Effect Logic
-  const playSoothingSound = useCallback(() => {
+  const playSoothingSound = useCallback(async () => {
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
     
     const ctx = new AudioContext();
+    
+    // Ensure context is running (browsers often suspend it until user interaction)
+    if (ctx.state === 'suspended') {
+      try {
+        await ctx.resume();
+      } catch (e) {
+        console.warn("Could not resume audio context", e);
+      }
+    }
+
     const t = ctx.currentTime;
     
     // Create a gentle bell/chime sound using additive synthesis

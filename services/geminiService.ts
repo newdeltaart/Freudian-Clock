@@ -1,10 +1,14 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ScheduleItem } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lazy initialization to prevent top-level process.env access issues during build/import
+const getAiClient = () => {
+  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+};
 
 export const parseScheduleFromText = async (text: string): Promise<ScheduleItem[]> => {
   try {
+    const ai = getAiClient();
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: `Parse the following conference schedule text into a structured JSON array. 
